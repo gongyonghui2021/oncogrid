@@ -15,15 +15,14 @@
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 'use strict';
-var d3 = require('d3');
+import 'd3';
+import OncoHistogram from './Histogram';
+import OncoTrack from './Track';
 
-var OncoHistogram = require('./Histogram');
-var OncoTrack = require('./Track');
-
-var MainGrid;
+let MainGrid;
 
 MainGrid = function (params, lookupTable, updateCallback, resizeCallback, x, y) {
-    var _self = this;
+    let _self = this;
     _self.emit = params.emit;
     _self.x = x;
     _self.y = y;
@@ -46,7 +45,7 @@ MainGrid = function (params, lookupTable, updateCallback, resizeCallback, x, y) 
     _self.geneHistogram = new OncoHistogram(params, _self.container, true);
     _self.geneTrack =
         new OncoTrack(params, _self.container, true, params.geneTracks, params.geneOpacityFunc,
-            params.geneFillFunc, updateCallback, _self.width + (_self.histogramHeight * _self.numTypes), _self.resizeCallback, _self.isFullscreen);
+            params["geneFillFunc"], updateCallback, _self.width + (_self.histogramHeight * _self.numTypes), _self.resizeCallback, _self.isFullscreen);
     _self.geneTrack.init();
 
     _self.cnvGeneHistogram = new OncoHistogram(params, _self.container, true, 'cnv');
@@ -57,7 +56,7 @@ MainGrid = function (params, lookupTable, updateCallback, resizeCallback, x, y) 
  * @param params
  */
 MainGrid.prototype.loadParams = function (params) {
-    var _self = this;
+    let _self = this;
     _self.scaleToFit = typeof params.scaleToFit === 'boolean' ? params.scaleToFit : true;
     _self.leftTextWidth = params.leftTextWidth || 80;
     _self.prefix = params.prefix || 'og-';
@@ -120,7 +119,7 @@ MainGrid.prototype.loadParams = function (params) {
  * Creates main svg element, background, and tooltip.
  */
 MainGrid.prototype.init = function () {
-    var _self = this;
+    let _self = this;
 
     _self.canvas = _self.wrapper.append('canvas') // forces size of container to prevent default height in IE
         .attr('class', _self.prefix + 'canvas');
@@ -149,21 +148,21 @@ MainGrid.prototype.init = function () {
  * mutation occurrences.
  */
 MainGrid.prototype.render = function () {
-    var _self = this;
+    let _self = this;
 
     _self.emit('render:mainGrid:start');
     _self.computeCoordinates();
 
     _self.svg.on('mouseover', function (d) {
-        var target = d3.event.target;
-        var coord = d3.mouse(target);
+        let target = d3.event.target;
+        let coord = d3.mouse(target);
 
-        var xIndex = _self.rangeToDomain(_self.x, coord[0]);
-        var yIndex = _self.rangeToDomain(_self.y, coord[1]);
+        let xIndex = _self.rangeToDomain(_self.x, coord[0]);
+        let yIndex = _self.rangeToDomain(_self.y, coord[1]);
 
         if (!target.dataset.obsIndex || _self.crosshair) { return; }
-        var obsIds = target.dataset.obsIndex.split(' ');
-        var obs = _self.observations.filter(function (o) {
+        let obsIds = target.dataset.obsIndex.split(' ');
+        let obs = _self.observations.filter(function (o) {
           return o.donorId === obsIds[0] && o.geneId === obsIds[1];
         });
 
@@ -179,10 +178,10 @@ MainGrid.prototype.render = function () {
     });
 
     _self.svg.on('click', function () {
-        var obsIds = d3.event.target.dataset.obsIndex && d3.event.target.dataset.obsIndex.split(' ');
+        let obsIds = d3.event.target.dataset.obsIndex && d3.event.target.dataset.obsIndex.split(' ');
         if (!obsIds) { return; }
 
-        var observation = _self.observations.filter(function (o) {
+        let observation = _self.observations.filter(function (o) {
             return o.donorId === obsIds[0] && o.geneId === obsIds[1];
         });
         if (!observation) { return; }
@@ -326,12 +325,10 @@ MainGrid.prototype.computeCoordinates = function () {
             .data(_self.donors)
             .enter()
             .append('line')
-            .attr({
-                x1: function (d) { return d.x; },
-                x2: function (d) { return d.x; },
-                y2: _self.height,
-                'class': _self.prefix + 'donor-column',
-            })
+            .attr("x1",d => d.x)
+            .attr("x2",d => d.x)
+            .attr("y2",d => _self.height)
+            .classed(_self.prefix + 'donor-column', true)
             .style('pointer-events', 'none');
     }
 
@@ -344,10 +341,8 @@ MainGrid.prototype.computeCoordinates = function () {
     _self.row = _self.gridContainer.selectAll('.' + _self.prefix + 'gene-row')
         .data(_self.genes)
         .enter().append('g')
-        .attr('class', _self.prefix + 'gene-row')
-        .attr('transform', function (d) {
-            return 'translate(0,' + d.y + ')';
-        });
+        .classed(_self.prefix + 'gene-row', true)
+        .attr('transform', d => 'translate(0,' + d.y + ')')
 
     if (_self.drawGridLines) {
         _self.row.append('line')
@@ -451,7 +446,7 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
 
     var moveCrossHair = function (eventType, target) {
         if (_self.crosshair) {
-            var coord = d3.mouse(target);
+            var coord = d3.pointer(target);
 
             _self.verticalCross.attr('x1', coord[0]).attr('opacity', 1);
             _self.verticalCross.attr('x2', coord[0]).attr('opacity', 1);
@@ -492,17 +487,17 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
         .attr('style', 'pointer-events: none');
 
     _self.container
-        .on('mousedown', function () { _self.startSelection(this); })
-        .on('mouseover', function () { moveCrossHair('mouseover', this); })
-        .on('mousemove', function () { moveCrossHair('mousemove', this); })
-        .on('mouseout', function () {
+        .on('mousedown', (e,d)  => _self.startSelection(e))
+        .on('mouseover', (e,d)  => moveCrossHair('mouseover', e))
+        .on('mousemove', (e,d)  => moveCrossHair('mousemove', e))
+        .on('mouseout', () => {
             if (_self.crosshair) {
                 _self.verticalCross.attr('opacity', 0);
                 _self.horizontalCross.attr('opacity', 0);
                 _self.emit('gridCrosshairMouseOut');
             }
         })
-        .on('mouseup', function () { _self.finishSelection(); });
+        .on('mouseup', () => _self.finishSelection());
 };
 
 /**
