@@ -107,7 +107,9 @@ var params = {
     'start_lost': '#ff2323',
     'stop_lost': '#d3ec00',
     'initiator_codon_variant': '#5abaff'
-  }
+  },
+  geneClick:(e,d)=>{console.log("clickGene",d)},
+  donorClick:(e,d)=>{console.log("clickDonor",d)}
 };
 
 var grid = new OncoGrid(params);
