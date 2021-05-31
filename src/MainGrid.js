@@ -1,30 +1,12 @@
-/*
- * Copyright 2016(c) The Ontario Institute for Cancer Research. All rights reserved.
- *
- * This program and the accompanying materials are made available under the terms of the GNU Public
- * License v3.0. You should have received a copy of the GNU General Public License along with this
- * program. If not, see <http://www.gnu.org/licenses/>.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 'use strict';
-var d3 = require('d3');
-var Mustache = require('mustache');
+import "d3"
+import Mustache from 'mustache'
 
-var OncoHistogram = require('./Histogram');
-var OncoTrack = require('./Track');
+import OncoHistogram  from './Histogram'
+import OncoTrack  from './Track'
 
-var MainGrid;
-
-MainGrid = function (params, lookupTable, updateCallback, resizeCallback, emit) {
-    var _self = this;
+let MainGrid = function (params, lookupTable, updateCallback, resizeCallback, emit) {
+    let _self = this;
 
     _self.emit = emit;
     _self.lookupTable = lookupTable;
@@ -55,7 +37,7 @@ MainGrid = function (params, lookupTable, updateCallback, resizeCallback, emit) 
  * @param params
  */
 MainGrid.prototype.loadParams = function (params) {
-    var _self = this;
+    let _self = this;
     _self.scaleToFit = typeof params.scaleToFit === 'boolean' ? params.scaleToFit : true;
     _self.leftTextWidth = params.leftTextWidth || 80;
     _self.prefix = params.prefix || 'og-';
@@ -107,7 +89,7 @@ MainGrid.prototype.loadParams = function (params) {
     _self.crosshair = false;
 
     _self.gridClick = params.gridClick;
-    var templates = params.templates || {};
+    let templates = params.templates || {};
     _self.templates = {
         mainGrid: templates.mainGrid || '{{#observation}}' +
                 '{{observation.id}}<br>{{observation.geneSymbol}}<br>' +
@@ -122,7 +104,7 @@ MainGrid.prototype.loadParams = function (params) {
  * Creates main svg element, background, and tooltip.
  */
 MainGrid.prototype.init = function () {
-    var _self = this;
+    let _self = this;
 
     _self.div = _self.wrapper.append('div')
         .attr('class', _self.prefix + 'tooltip-oncogrid')
@@ -153,7 +135,7 @@ MainGrid.prototype.init = function () {
  * mutation occurrences.
  */
 MainGrid.prototype.render = function () {
-    var _self = this;
+    let _self = this;
 
     _self.emit('render:mainGrid:start');
     _self.computeCoordinates();
@@ -162,21 +144,20 @@ MainGrid.prototype.render = function () {
     _self.container.selectAll('.' + _self.prefix + 'maingrid-svg')
         .data(_self.observations).enter()
         .append('rect')
-        .on('mouseover', function (d) {
-            var coord = d3.mouse(this);
+        .on('mouseover', function (e,d) {
+            let coord = d3.pointer(e);
+            let xIndex = _self.rangeToDomain(_self.x, coord[0]);
+            let yIndex = _self.rangeToDomain(_self.y, coord[1]);
+            let template = _self.crosshair ? _self.templates.mainGridCrosshair : _self.templates.mainGrid;
 
-            var xIndex = _self.rangeToDomain(_self.x, coord[0]);
-            var yIndex = _self.rangeToDomain(_self.y, coord[1]);
-            var template = _self.crosshair ? _self.templates.mainGridCrosshair : _self.templates.mainGrid;
-
-            var html = Mustache.render(template || '', {
+            let html = Mustache.render(template || '', {
                 observation: d,
                 donor: _self.donors[xIndex],
                 gene: _self.genes[yIndex]
             });
 
             if(html) {
-                var tooltipCoord = d3.mouse(_self.wrapper.node());
+                let tooltipCoord = d3.pointer(e,_self.wrapper.node());
 
                 _self.div.transition()
                     .duration(200)
@@ -192,9 +173,9 @@ MainGrid.prototype.render = function () {
                 .duration(500)
                 .style('opacity', 0);
         })
-        .on('click', function (d) {
+        .on('click', function (e,d) {
             if (typeof _self.gridClick !== 'undefined') {
-                _self.gridClick(d);
+                _self.gridClick(e,d);
             }
         })
         .attr('class', function (d) {
@@ -248,7 +229,7 @@ MainGrid.prototype.render = function () {
  * Render function ensures presentation matches the data. Called after modifying data.
  */
 MainGrid.prototype.update = function () {
-    var _self = this;
+    let _self = this;
 
     // Recalculate positions and dimensions of cells only on change in number of elements
     if (_self.numDonors !== _self.donors.length || _self.numGenes !== _self.genes.length) {
@@ -295,11 +276,11 @@ MainGrid.prototype.update = function () {
  * Updates coordinate system and renders the lines of the grid.
  */
 MainGrid.prototype.computeCoordinates = function () {
-    var _self = this;
+    let _self = this;
 
-    _self.x = d3.scale.ordinal()
+    _self.x = d3.scaleBand()
         .domain(d3.range(_self.donors.length))
-        .rangeBands([0, _self.width]);
+        .range([0, _self.width]);
     _self.cellWidth = _self.width / _self.donors.length;
 
     if (typeof _self.column !== 'undefined') {
@@ -322,9 +303,9 @@ MainGrid.prototype.computeCoordinates = function () {
             .attr('x1', -_self.height);
     }
 
-    _self.y = d3.scale.ordinal()
+    _self.y = d3.scaleBand()
         .domain(d3.range(_self.genes.length))
-        .rangeBands([0, _self.height]);
+        .range([0, _self.height]);
     _self.cellHeight = _self.height / _self.genes.length;
 
     if (typeof _self.row !== 'undefined') {
@@ -367,7 +348,7 @@ MainGrid.prototype.computeCoordinates = function () {
 };
 
 MainGrid.prototype.resize = function(width, height) {
-    var _self = this;
+    let _self = this;
 
     _self.width = width;
     _self.height = height;
@@ -395,16 +376,16 @@ MainGrid.prototype.resize = function(width, height) {
     _self.resizeSvg();
     _self.update();
 
-    var boundingBox = _self.container.node().getBBox();
+    let boundingBox = _self.container.node().getBBox();
     _self.verticalCross.attr('y2', boundingBox.height);
     _self.horizontalCross.attr('x2', boundingBox.width);
 
 };
 
 MainGrid.prototype.resizeSvg = function() {
-    var _self = this;
-    var width = _self.margin.left + _self.leftTextWidth + _self.width + _self.histogramHeight + _self.geneTrack.height + _self.margin.right;
-    var height = _self.margin.top + _self.histogramHeight + _self.height + _self.donorTrack.height + _self.margin.bottom;
+    let _self = this;
+    let width = _self.margin.left + _self.leftTextWidth + _self.width + _self.histogramHeight + _self.geneTrack.height + _self.margin.right;
+    let height = _self.margin.top + _self.histogramHeight + _self.height + _self.donorTrack.height + _self.margin.bottom;
 
     _self.canvas
         .attr('width', width)
@@ -420,17 +401,17 @@ MainGrid.prototype.resizeSvg = function() {
 
     _self.container
         .attr('transform', 'translate(' +
-            (_self.margin.left + _self.leftTextWidth) + ',' + 
+            (_self.margin.left + _self.leftTextWidth) + ',' +
             (_self.margin.top + _self.histogramHeight) +
         ')');
 };
 
 MainGrid.prototype.defineCrosshairBehaviour = function () {
-    var _self = this;
+    let _self = this;
 
-    var moveCrossHair = function(eventType, target) {
+    let moveCrossHair = function(eventType, event) {
         if (_self.crosshair) {
-            var coord = d3.mouse(target);
+            let coord = d3.pointer(event);
 
             _self.verticalCross.attr('x1', coord[0]).attr('opacity', 1);
             _self.verticalCross.attr('x2', coord[0]).attr('opacity', 1);
@@ -441,21 +422,21 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
                 _self.changeSelection(coord);
             }
 
-            var xIndex = _self.width < coord[0] ? -1 : _self.rangeToDomain(_self.x, coord[0]);
-            var yIndex = _self.height < coord[1] ? -1 : _self.rangeToDomain(_self.y, coord[1]);
+            let xIndex = _self.width < coord[0] ? -1 : _self.rangeToDomain(_self.x, coord[0]);
+            let yIndex = _self.height < coord[1] ? -1 : _self.rangeToDomain(_self.y, coord[1]);
 
-            var donor = _self.donors[xIndex];
-            var gene = _self.genes[yIndex];
-            var obsArray = _self.nullableObsLookup(donor, gene);
+            let donor = _self.donors[xIndex];
+            let gene = _self.genes[yIndex];
+            let obsArray = _self.nullableObsLookup(donor, gene);
 
-            var html = Mustache.render(_self.templates.mainGridCrosshair, {
+            let html = Mustache.render(_self.templates.mainGridCrosshair, {
                 donor: donor,
                 gene: gene,
                 obs: obsArray
             });
 
             if(html) {
-                var tooltipCoord = d3.mouse(_self.wrapper.node());
+                let tooltipCoord = d3.pointer(event, _self.wrapper.node());
 
                 _self.div.transition()
                     .duration(200)
@@ -484,26 +465,26 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
 
     _self.container
         .on('mousedown', function() {_self.startSelection(this);})
-        .on('mouseover', function() { moveCrossHair('mouseover', this); })
-        .on('mousemove', function() { moveCrossHair('mousemove', this); })
+        .on('mouseover', function(e) { moveCrossHair('mouseover', e); })
+        .on('mousemove', function(e) { moveCrossHair('mousemove', e); })
         .on('mouseout', function () {
             if (_self.crosshair) {
                 _self.verticalCross.attr('opacity', 0);
                 _self.horizontalCross.attr('opacity', 0);
             }
         })
-        .on('mouseup', function() {_self.finishSelection();});
+        .on('mouseup', function(e) {_self.finishSelection(e);});
 };
 
 /**
  * Event behavior when pressing down on the mouse to make a selection
  */
 MainGrid.prototype.startSelection = function(e) {
-    var _self = this;
+    let _self = this;
 
     if (_self.crosshair && typeof _self.selectionRegion === 'undefined') {
-        d3.event.stopPropagation();
-        var coord = d3.mouse(e);
+        e.stopPropagation();
+        let coord = d3.pointer(e);
 
         _self.selectionRegion = _self.container.append('rect')
             .attr('x', coord[0])
@@ -521,16 +502,16 @@ MainGrid.prototype.startSelection = function(e) {
  * Event behavior as you drag selected region around
  */
 MainGrid.prototype.changeSelection = function(coord) {
-    var _self = this;
+    let _self = this;
 
-    var rect = {
+    let rect = {
         x: parseInt(_self.selectionRegion.attr('x'), 10),
         y: parseInt(_self.selectionRegion.attr('y'), 10),
         width: parseInt(_self.selectionRegion.attr('width'), 10),
         height: parseInt(_self.selectionRegion.attr('height'), 10)
     };
 
-    var move = {
+    let move = {
         x : coord[0] - Number(_self.selectionRegion.attr('x')),
         y : coord[1] - Number(_self.selectionRegion.attr('y'))
     };
@@ -555,23 +536,23 @@ MainGrid.prototype.changeSelection = function(coord) {
 /**
  * Event behavior when releasing mouse when finishing with a selection
  */
-MainGrid.prototype.finishSelection = function() {
-    var _self = this;
+MainGrid.prototype.finishSelection = function(event) {
+    let _self = this;
 
     if (_self.crosshair && typeof _self.selectionRegion !== 'undefined') {
-        d3.event.stopPropagation();
+        event.stopPropagation();
 
-        var x1 = Number(_self.selectionRegion.attr('x'));
-        var x2 = x1 + Number(_self.selectionRegion.attr('width'));
+        let x1 = Number(_self.selectionRegion.attr('x'));
+        let x2 = x1 + Number(_self.selectionRegion.attr('width'));
 
-        var y1 = Number(_self.selectionRegion.attr('y'));
-        var y2 = y1 + Number(_self.selectionRegion.attr('height'));
+        let y1 = Number(_self.selectionRegion.attr('y'));
+        let y2 = y1 + Number(_self.selectionRegion.attr('height'));
 
-        var xStart = _self.rangeToDomain(_self.x, x1);
-        var xStop = _self.rangeToDomain(_self.x, x2);
+        let xStart = _self.rangeToDomain(_self.x, x1);
+        let xStop = _self.rangeToDomain(_self.x, x2);
 
-        var yStart = _self.rangeToDomain(_self.y, y1);
-        var yStop = _self.rangeToDomain(_self.y, y2);
+        let yStart = _self.rangeToDomain(_self.y, y1);
+        let yStop = _self.rangeToDomain(_self.y, y2);
 
         _self.sliceDonors(xStart, xStop);
         _self.sliceGenes(yStart, yStop);
@@ -594,10 +575,10 @@ MainGrid.prototype.finishSelection = function() {
  * @param stop - end index of the selection
  */
 MainGrid.prototype.sliceGenes = function(start, stop) {
-    var _self = this;
+    let _self = this;
 
-    for (var i = 0; i < _self.genes.length; i++) {
-        var gene = _self.genes[i];
+    for (let i = 0; i < _self.genes.length; i++) {
+        let gene = _self.genes[i];
         if (i < start || i > stop) {
             d3.selectAll('.' + _self.prefix + gene.id + '-cell').remove();
             d3.selectAll('.' + _self.prefix + gene.id + '-bar').remove();
@@ -613,10 +594,10 @@ MainGrid.prototype.sliceGenes = function(start, stop) {
  * @param stop - end index of the selection
  */
 MainGrid.prototype.sliceDonors = function(start, stop) {
-    var _self = this;
+    let _self = this;
 
-    for (var i = 0; i < _self.donors.length; i++) {
-        var donor = _self.donors[i];
+    for (let i = 0; i < _self.donors.length; i++) {
+        let donor = _self.donors[i];
         if (i < start || i > stop) {
             d3.selectAll('.' + _self.prefix + donor.id + '-cell').remove();
             d3.selectAll('.' + _self.prefix + donor.id + '-bar').remove();
@@ -630,26 +611,26 @@ MainGrid.prototype.sliceDonors = function(start, stop) {
  * Defines the row drag behaviour for moving genes and binds it to the row elements.
  */
 MainGrid.prototype.defineRowDragBehaviour = function () {
-    var _self = this;
+    let _self = this;
 
-    var drag = d3.behavior.drag();
-    drag.on('dragstart', function () {
-        d3.event.sourceEvent.stopPropagation(); // silence other listeners
+    let drag = d3.drag();
+    drag.on('start', function (e) {
+        e.sourceEvent.stopPropagation(); // silence other listeners
     });
-    drag.on('drag', function () {
-        var trans = d3.event.dy;
-        var selection = d3.select(this);
+    drag.on('drag', function (e) {
+        let trans = e.dy;
+        let selection = d3.select(e.target);
 
         selection.attr('transform', function () {
-            var transform = d3.transform(d3.select(this).attr('transform'));
+            let transform = d3.transform(d3.select(e.target).attr('transform'));
             return 'translate( 0, ' + (parseInt(transform.translate[1]) + trans) + ')';
         });
     });
 
-    drag.on('dragend', function (d) {
-        var coord = d3.mouse(_self.container.node());
-        var dragged = _self.genes.indexOf(d);
-        var yIndex = _self.rangeToDomain(_self.y, coord[1]);
+    drag.on('end', function (e,d) {
+        let coord = d3.pointer(e,_self.container.node());
+        let dragged = _self.genes.indexOf(d);
+        let yIndex = _self.rangeToDomain(_self.y, coord[1]);
 
         _self.genes.splice(dragged, 1);
         _self.genes.splice(yIndex, 0, d);
@@ -657,14 +638,14 @@ MainGrid.prototype.defineRowDragBehaviour = function () {
         _self.updateCallback(true);
     });
 
-    var dragSelection = _self.row.call(drag);
-    dragSelection.on('click', function () {
-        if (d3.event.defaultPrevented) {
+    let dragSelection = _self.row.call(drag);
+    dragSelection.on('click', function (e) {
+        if (e.defaultPrevented) {
         }
     });
 
     _self.row.on('mouseover', function () {
-        var curElement = this;
+        let curElement = this;
         if (typeof curElement.timeout !== 'undefined') {
             clearTimeout(curElement.timeout);
         }
@@ -675,7 +656,7 @@ MainGrid.prototype.defineRowDragBehaviour = function () {
     });
 
     _self.row.on('mouseout', function () {
-        var curElement = this;
+        let curElement = this;
         curElement.timeout = setTimeout(function () {
             d3.select(curElement).select('.' + _self.prefix + 'remove-gene')
                 .attr('style', 'display: none');
@@ -687,9 +668,9 @@ MainGrid.prototype.defineRowDragBehaviour = function () {
  * Function that determines the y position of a mutation within a cell
  */
 MainGrid.prototype.getY = function (d) {
-    var _self = this;
+    let _self = this;
 
-    var pseudoGenes = _self.genes.map(function (g) {
+    let pseudoGenes = _self.genes.map(function (g) {
         return g.id;
     });
 
@@ -697,7 +678,7 @@ MainGrid.prototype.getY = function (d) {
         return _self.y(pseudoGenes.indexOf(d.geneId));
     }
 
-    var obsArray = _self.lookupTable[d.donorId][d.geneId];
+    let obsArray = _self.lookupTable[d.donorId][d.geneId];
     return _self.y(pseudoGenes.indexOf(d.geneId)) + (_self.cellHeight / obsArray.length) *
         (obsArray.indexOf(d.id));
 };
@@ -707,7 +688,7 @@ MainGrid.prototype.getY = function (d) {
  * @param d observation.
  */
 MainGrid.prototype.getColor = function (d) {
-    var _self = this;
+    let _self = this;
 
     if (_self.heatMap === true) {
         return '#D33682';
@@ -720,8 +701,8 @@ MainGrid.prototype.getColor = function (d) {
  * Returns the desired opacity of observation rects. This changes between heatmap and regular mode.
  * @returns {number}
  */
-MainGrid.prototype.getOpacity = function () {
-    var _self = this;
+MainGrid.prototype.getOpacity = function (d) {
+    let _self = this;
 
     if (_self.heatMap === true) {
         return 0.25;
@@ -735,13 +716,13 @@ MainGrid.prototype.getOpacity = function () {
  * @returns {number}
  */
 MainGrid.prototype.getHeight = function (d) {
-    var _self = this;
+    let _self = this;
 
     if (typeof d !== 'undefined') {
         if (_self.heatMap === true) {
             return _self.cellHeight;
         } else {
-            var count = _self.lookupTable[d.donorId][d.geneId].length;
+            let count = _self.lookupTable[d.donorId][d.geneId].length;
             return _self.cellHeight / count;
         }
     } else {
@@ -753,7 +734,7 @@ MainGrid.prototype.getHeight = function (d) {
  * Toggles the observation rects between heatmap and regular mode.
  */
 MainGrid.prototype.toggleHeatmap = function () {
-    var _self = this;
+    let _self = this;
 
     _self.heatMap = _self.heatMap !== true;
 
@@ -776,7 +757,7 @@ MainGrid.prototype.toggleHeatmap = function () {
 };
 
 MainGrid.prototype.toggleGridLines = function () {
-    var _self = this;
+    let _self = this;
 
     _self.drawGridLines = !_self.drawGridLines;
 
@@ -789,7 +770,7 @@ MainGrid.prototype.toggleGridLines = function () {
 };
 
 MainGrid.prototype.toggleCrosshair = function () {
-    var _self = this;
+    let _self = this;
     _self.crosshair = !_self.crosshair;
 
     return _self.crosshair;
@@ -799,8 +780,8 @@ MainGrid.prototype.toggleCrosshair = function () {
  * Helper for getting donor index position
  */
 MainGrid.prototype.getDonorIndex = function (donors, donorId) {
-    for (var i = 0; i < donors.length; i++) {
-        var donor = donors[i];
+    for (let i = 0; i < donors.length; i++) {
+        let donor = donors[i];
         if (donor.id === donorId) {
             return i;
         }
@@ -814,9 +795,9 @@ MainGrid.prototype.getDonorIndex = function (donors, donorId) {
  * @param i index of the gene to remove.
  */
 MainGrid.prototype.removeGene = function (i) {
-    var _self = this;
+    let _self = this;
 
-    var gene = _self.genes[i];
+    let gene = _self.genes[i];
     if (gene) {
         d3.selectAll('.' + _self.prefix + gene.id + '-cell').remove();
         d3.selectAll('.' + _self.prefix + gene.id + '-bar').remove();
@@ -833,7 +814,7 @@ MainGrid.prototype.rangeToDomain = function(scale, value) {
 
 
 MainGrid.prototype.nullableObsLookup = function(donor, gene) {
-    var _self = this;
+    let _self = this;
 
     if(!donor || typeof donor !== 'object') return null;
     if(!gene || typeof gene !== 'object') return null;
@@ -849,11 +830,11 @@ MainGrid.prototype.nullableObsLookup = function(donor, gene) {
  * Removes all svg elements for this grid.
  */
 MainGrid.prototype.destroy = function () {
-    var _self = this;
+    let _self = this;
 
     _self.wrapper.select('.' + _self.prefix + 'maingrid-svg').remove();
     _self.wrapper.select('.' + _self.prefix + 'canvas').remove();
     _self.wrapper.select('.' + _self.prefix + 'tooltip-oncogrid').remove();
 };
 
-module.exports = MainGrid;
+export default MainGrid;

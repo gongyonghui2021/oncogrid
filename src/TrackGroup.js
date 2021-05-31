@@ -1,29 +1,11 @@
-/*
- * Copyright 2016(c) The Ontario Institute for Cancer Research. All rights reserved.
- *
- * This program and the accompanying materials are made available under the terms of the GNU Public
- * License v3.0. You should have received a copy of the GNU General Public License along with this
- * program. If not, see <http://www.gnu.org/licenses/>.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 'use strict';
 
-var d3 = require('d3');
-var _uniq = require('lodash.uniq');
-var Mustache = require('mustache');
+import "d3";
+import _uniq  from 'lodash.uniq'
+import Mustache from 'mustache'
 
-var OncoTrackGroup;
-
-OncoTrackGroup = function (params, name, rotated, opacityFunc, fillFunc, updateCallback, resizeCallback, isFullscreen) {
-    var _self = this;
+let OncoTrackGroup = function (params, name, rotated, opacityFunc, fillFunc, updateCallback, resizeCallback, isFullscreen) {
+    let _self = this;
 
     _self.prefix = params.prefix || 'og-';
     _self.expandable = params.expandable;
@@ -65,7 +47,7 @@ OncoTrackGroup = function (params, name, rotated, opacityFunc, fillFunc, updateC
  * Method for adding a track to the track group.
  */
 OncoTrackGroup.prototype.addTrack = function (tracks) {
-    var _self = this;
+    let _self = this;
     tracks = Array.isArray(tracks) ? tracks : [tracks];
 
     for(var i = 0, track; i < tracks.length; i++) {
@@ -99,9 +81,9 @@ OncoTrackGroup.prototype.addTrack = function (tracks) {
  * Method for removing a track from the track group.
  */
 OncoTrackGroup.prototype.removeTrack = function(i) {
-    var _self = this;
+    let _self = this;
 
-    var removed = _self.tracks.splice(i, 1);
+    let removed = _self.tracks.splice(i, 1);
     _self.collapsedTracks = _self.collapsedTracks.concat(removed);
     _self.length = _self.tracks.length;
 
@@ -113,7 +95,7 @@ OncoTrackGroup.prototype.removeTrack = function(i) {
  * Refreshes the data after adding a new track.
  */
 OncoTrackGroup.prototype.refreshData = function () {
-    var _self = this;
+    let _self = this;
 
     _self.trackData = [];
     for (var i = 0, domain; i < _self.domain.length; i++) {
@@ -122,7 +104,7 @@ OncoTrackGroup.prototype.refreshData = function () {
         for (var j = 0, track, value; j < _self.length; j++) {
             track = _self.tracks[j];
             value = domain[track.fieldName];
-            var isNullSentinel = value === _self.nullSentinel;
+            let isNullSentinel = value === _self.nullSentinel;
             _self.trackData.push({
                 id: domain.id,
                 displayId: _self.rotated ? domain.symbol : domain.id,
@@ -142,7 +124,7 @@ OncoTrackGroup.prototype.refreshData = function () {
  * Initializes the container for the track groups.
  */
 OncoTrackGroup.prototype.init = function (container) {
-    var _self = this;
+    let _self = this;
 
     _self.container = container;
 
@@ -153,7 +135,7 @@ OncoTrackGroup.prototype.init = function (container) {
         .attr('text-anchor', 'end')
         .attr('class', _self.prefix + 'track-group-label')
         .text(_self.name);
-    
+
     _self.legendObject = _self.container.append('svg:foreignObject')
         .attr('width', 20)
         .attr('height', 20);
@@ -178,7 +160,7 @@ OncoTrackGroup.prototype.init = function (container) {
  * Renders the track group. Takes the x axis range, and the div for tooltips.
  */
 OncoTrackGroup.prototype.render = function (x, div) {
-    var _self = this;
+    let _self = this;
     _self.rendered = true;
     _self.x = x;
     _self.div = div;
@@ -189,8 +171,8 @@ OncoTrackGroup.prototype.render = function (x, div) {
     _self.renderData();
 
     _self.legend
-        .on('mouseover', function () {
-            var coordinates = d3.mouse(_self.wrapper.node());
+        .on('mouseover', function (e) {
+            let coordinates = d3.pointer(e,_self.wrapper.node());
 
             _self.div.transition()
                 .duration(200)
@@ -213,7 +195,7 @@ OncoTrackGroup.prototype.render = function (x, div) {
  * Updates the track group rendering based on the given domain and range for axis.
  */
 OncoTrackGroup.prototype.update = function(domain, x) {
-    var _self = this;
+    let _self = this;
 
     _self.domain = domain;
     _self.x = x;
@@ -235,7 +217,7 @@ OncoTrackGroup.prototype.update = function(domain, x) {
  * Resizes to the given width.
  */
 OncoTrackGroup.prototype.resize = function (width, x) {
-    var _self = this;
+    let _self = this;
 
     _self.width = width;
     _self.x = x;
@@ -260,11 +242,11 @@ OncoTrackGroup.prototype.resize = function (width, x) {
  * Updates coordinate system
  */
 OncoTrackGroup.prototype.computeCoordinates = function () {
-    var _self = this;
+    let _self = this;
 
-    _self.y = d3.scale.ordinal()
+    _self.y = d3.scaleBand()
         .domain(d3.range(_self.length))
-        .rangeBands([0, _self.height]);
+        .range([0, _self.height]);
 
     // append columns
     if (typeof _self.column !== 'undefined') {
@@ -299,10 +281,10 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
             .attr('x2', _self.width);
     }
 
-    var labels = _self.row.append('text');
+    let labels = _self.row.append('text');
 
     labels.attr('class', _self.prefix + 'track-label ' + _self.prefix + 'label-text-font')
-        .on('click', function (d) {
+        .on('click', function (e,d) {
             _self.domain.sort(d.sort(d.fieldName));
             _self.updateCallback(false);
         })
@@ -318,7 +300,7 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
     _self.container.selectAll('.' + _self.prefix + 'remove-track').remove();
     if(_self.expandable) {
          setTimeout(function() {
-            var textLengths = {};
+            let textLengths = {};
             labels.each(function(d) {
                 textLengths[d.name] = this.getComputedTextLength();
             });
@@ -329,13 +311,13 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
                 .text('-')
                 .attr('y', _self.cellHeight / 2)
                 .attr('dy', '.32em')
-                .on('click', function(d, i) { _self.removeTrack(i); })
+                .on('click', function(e,d, i) { _self.removeTrack(i); })
                 .attr('x', function(d) { return -(textLengths[d.name] + 12 + this.getComputedTextLength()) });
         });
     }
 
     // append or remove add track button
-    var addButton = _self.container.selectAll('.' + _self.prefix + 'add-track');
+    let addButton = _self.container.selectAll('.' + _self.prefix + 'add-track');
 
     if(_self.collapsedTracks.length && _self.expandable) {
         if(addButton.empty()) {
@@ -357,9 +339,9 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
 };
 
 OncoTrackGroup.prototype.getX = function (obj) {
-    var _self = this;
+    let _self = this;
 
-    var index = _self.domain.map(function (d) {
+    let index = _self.domain.map(function (d) {
         return d.id;
     });
 
@@ -367,9 +349,9 @@ OncoTrackGroup.prototype.getX = function (obj) {
 };
 
 OncoTrackGroup.prototype.getY = function (obj) {
-    var _self = this;
+    let _self = this;
 
-    var index = _self.tracks.map(function (d) {
+    let index = _self.tracks.map(function (d) {
         return d.fieldName;
     });
 
@@ -377,15 +359,15 @@ OncoTrackGroup.prototype.getY = function (obj) {
 };
 
 OncoTrackGroup.prototype.toggleGridLines = function () {
-    var _self = this;
+    let _self = this;
     _self.drawGridLines = !_self.drawGridLines;
     _self.computeCoordinates();
 };
 
 OncoTrackGroup.prototype.renderData = function(x, div) {
-    var _self = this;
+    let _self = this;
 
-    var selection = _self.container.selectAll('.' + _self.prefix + 'track-data')
+    let selection = _self.container.selectAll('.' + _self.prefix + 'track-data')
         .data(_self.trackData);
 
     selection.enter()
@@ -399,14 +381,14 @@ OncoTrackGroup.prototype.renderData = function(x, div) {
         .attr('fill', _self.fillFunc)
         .attr('opacity', _self.opacityFunc)
         .attr('class', function (d) {
-            return _self.prefix + 'track-data ' + 
+            return _self.prefix + 'track-data ' +
                 _self.prefix + 'track-' + d.fieldName + ' ' +
-                _self.prefix + 'track-' + d.value + ' ' + 
+                _self.prefix + 'track-' + d.value + ' ' +
                 _self.prefix + d.id + '-cell';
         })
-        .on('click', function (d) { _self.clickFunc(d); })
-        .on('mouseover', function (d) {
-            var coordinates = d3.mouse(_self.wrapper.node());
+        .on('click', function (e,d) { _self.clickFunc(e,d); })
+        .on('mouseover', function (e,d) {
+            let coordinates = d3.pointer(e, _self.wrapper.node());
 
             _self.div.transition()
                 .duration(200)
@@ -425,4 +407,4 @@ OncoTrackGroup.prototype.renderData = function(x, div) {
     selection.exit().remove();
 };
 
-module.exports = OncoTrackGroup;
+export default OncoTrackGroup;

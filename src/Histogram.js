@@ -1,28 +1,11 @@
-/*
- * Copyright 2016(c) The Ontario Institute for Cancer Research. All rights reserved.
- *
- * This program and the accompanying materials are made available under the terms of the GNU Public
- * License v3.0. You should have received a copy of the GNU General Public License along with this
- * program. If not, see <http://www.gnu.org/licenses/>.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+
 'use strict';
 
-var d3 = require('d3');
-var OncoHistogram;
+import "d3";
+let OncoHistogram = function (params, s, rotated) {
+    let _self = this;
 
-OncoHistogram = function (params, s, rotated) {
-    var _self = this;
-
-    var histogramBorderPadding = params.histogramBorderPadding || {};
+    let histogramBorderPadding = params.histogramBorderPadding || {};
     _self.lineWidthOffset = histogramBorderPadding.left || 10;
     _self.lineHeightOffset = histogramBorderPadding.bottom || 5;
     _self.padding = 20;
@@ -53,7 +36,7 @@ OncoHistogram = function (params, s, rotated) {
 };
 
 OncoHistogram.prototype.render = function (x, div) {
-    var _self = this;
+    let _self = this;
     _self.x = x;
     _self.div = div;
 
@@ -63,17 +46,17 @@ OncoHistogram.prototype.render = function (x, div) {
      * @returns {number}
      */
     function getLargestCount() {
-        var retVal = 1;
+        let retVal = 1;
 
-        for (var i = 0; i < _self.domain.length; i++) {
-            var donor = _self.domain[i];
+        for (let i = 0; i < _self.domain.length; i++) {
+            let donor = _self.domain[i];
             retVal = Math.max(retVal, donor.count);
         }
 
         return retVal;
     }
 
-    var topCount = getLargestCount();
+    let topCount = getLargestCount();
 
     _self.container = _self.svg.append('g')
         .attr('class', _self.prefix + 'histogram')
@@ -103,8 +86,8 @@ OncoHistogram.prototype.render = function (x, div) {
         .data(_self.domain)
         .enter()
         .append('rect')
-        .on('mouseover', function (d) {
-            var coordinates = d3.mouse(_self.wrapper.node());
+        .on('mouseover', function (e,d) {
+            let coordinates = d3.pointer(e,_self.wrapper.node());
 
             _self.div.transition()
                 .duration(200)
@@ -143,7 +126,7 @@ OncoHistogram.prototype.render = function (x, div) {
 };
 
 OncoHistogram.prototype.update = function (domain, x) {
-    var _self = this;
+    let _self = this;
     _self.x = x;
     _self.domain = domain;
     _self.barWidth = (_self.rotated ? _self.height : _self.width) / _self.domain.length;
@@ -157,7 +140,7 @@ OncoHistogram.prototype.update = function (domain, x) {
 };
 
 OncoHistogram.prototype.resize = function (width, height) {
-    var _self = this;
+    let _self = this;
 
     _self.width = width;
     _self.height = height;
@@ -191,7 +174,7 @@ OncoHistogram.prototype.resize = function (width, height) {
  * @param topCount Maximum value
  */
 OncoHistogram.prototype.renderAxis = function (topCount) {
-    var _self = this;
+    let _self = this;
 
     _self.bottomAxis = _self.histogram.append('line')
         .attr('class', _self.prefix + 'histogram-axis')
@@ -215,8 +198,8 @@ OncoHistogram.prototype.renderAxis = function (topCount) {
         .text(topCount);
 
     // Round to a nice round number and then adjust position accordingly
-    var halfInt = parseInt(topCount / 2);
-    var secondHeight = _self.histogramHeight - _self.histogramHeight / (topCount / halfInt);
+    let halfInt = parseInt(topCount / 2);
+    let secondHeight = _self.histogramHeight - _self.histogramHeight / (topCount / halfInt);
 
     _self.histogram.append('text')
         .attr('class', _self.prefix + 'label-text-font')
@@ -226,14 +209,14 @@ OncoHistogram.prototype.renderAxis = function (topCount) {
         .attr('text-anchor', 'end')
         .text(halfInt);
 
-    var label = _self.histogram.append('text')
+    let label = _self.histogram.append('text')
         .attr('class', _self.prefix + 'label-text-font')
         .attr('dy', '.32em')
         .attr('text-anchor', 'end')
         .text("Mutation freq.");
 
     label.each(function() {
-        var width = this.getBBox().width;
+        let width = this.getBBox().width;
 
         label.attr('transform', 'rotate(-90)translate(' + (-(_self.histogramHeight - width)) + ',' + -(_self.lineHeightOffset + _self.padding) + ')');
     });
@@ -243,8 +226,8 @@ OncoHistogram.prototype.renderAxis = function (topCount) {
  * Helper the gets the index of the current id.
  */
 OncoHistogram.prototype.getIndex = function (list, id) {
-    for (var i = 0; i < list.length; i++) {
-        var obj = list[i];
+    for (let i = 0; i < list.length; i++) {
+        let obj = list[i];
         if (obj.id === id) {
             return i;
         }
@@ -254,9 +237,9 @@ OncoHistogram.prototype.getIndex = function (list, id) {
 };
 
 OncoHistogram.prototype.destroy = function() {
-    var _self = this;
+    let _self = this;
     _self.histogram.remove();
     _self.container.remove();
 };
 
-module.exports = OncoHistogram;
+export default OncoHistogram;

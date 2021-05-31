@@ -20,16 +20,16 @@ var genes = [
 
 
 var observations = [
-  {"id": "MU1", "donorId": "DO1", "geneId": "ENSG00000157764"},
-  {"id": "MU11", "donorId": "DO1", "geneId": "ENSG00000157764"},
-  {"id": "MU2", "donorId": "DO1", "geneId": "ENSG00000141510"},
-  {"id": "MU3", "donorId": "DO2", "geneId": "ENSG00000141510"},
-  {"id": "MU4", "donorId": "DO3", "geneId": "ENSG00000157764"},
-  {"id": "MU5", "donorId": "DO4", "geneId": "ENSG00000157764"},
-  {"id": "MU6", "donorId": "DO4", "geneId": "ENSG00000164796"},
-  {"id": "MU7", "donorId": "DO5", "geneId": "ENSG00000155657"},
-  {"id": "MU8", "donorId": "DO5", "geneId": "ENSG00000157764"},
-  {"id": "MU9", "donorId": "DO6", "geneId": "ENSG00000157764"}
+  {"id": "MU1", "donorId": "DO1", "geneId": "ENSG00000157764","consequence":"missense_variant"},
+  {"id": "MU11", "donorId": "DO1", "geneId": "ENSG00000157764","consequence":"frameshift_variant"},
+  {"id": "MU2", "donorId": "DO1", "geneId": "ENSG00000141510","consequence":"stop_gained"},
+  {"id": "MU3", "donorId": "DO2", "geneId": "ENSG00000141510","consequence":"start_lost"},
+  {"id": "MU4", "donorId": "DO3", "geneId": "ENSG00000157764","consequence":"stop_lost"},
+  {"id": "MU5", "donorId": "DO4", "geneId": "ENSG00000157764","consequence":"initiator_codon_variant"},
+  {"id": "MU6", "donorId": "DO4", "geneId": "ENSG00000164796","consequence":"stop_lost"},
+  {"id": "MU7", "donorId": "DO5", "geneId": "ENSG00000155657","consequence":"start_lost"},
+  {"id": "MU8", "donorId": "DO5", "geneId": "ENSG00000157764","consequence":"stop_gained"},
+  {"id": "MU9", "donorId": "DO6", "geneId": "ENSG00000157764","consequence":"frameshift_variant"}
 ];
 
 var donorOpacity = function (d) {
@@ -57,7 +57,7 @@ var geneOpacity = function (d) {
 };
 
 var geneTracks = [
-  {'name': 'Total Donors Affected', 'fieldName': 'totalDonors', 'type': 'int', 'group': 'ICGC'},
+  {'name': 'Total Donors Affected', 'fieldName': 'totalDonors', 'type': 'int', 'group': 'cbca'},
 ];
 
 var sortBool = function(field) {
@@ -89,16 +89,25 @@ var params = {
   donors: donors,
   genes: genes,
   observations: observations,
-  height: 450,
-  width: 600,
-  heatMap: true,
-  trackHeight: 20,
+  height: 180,
+  width: 300,
+  heatMap: false,
+  trackHeight: 10,
   trackLegendLabel: '<i>?</i>',
   donorTracks: donorTracks,
   donorOpacityFunc: donorOpacity,
   donorFillFunc: donorFill,
   geneTracks: geneTracks,
-  geneOpacityFunc: geneOpacity
+  geneOpacityFunc: geneOpacity,
+  geneFillFunc: ()=>{ return '#6d72c5';},
+  colorMap :{
+    'missense_variant': '#ff9b6c',
+    'frameshift_variant': '#57dba4',
+    'stop_gained': '#af57db',
+    'start_lost': '#ff2323',
+    'stop_lost': '#d3ec00',
+    'initiator_codon_variant': '#5abaff'
+  }
 };
 
 var grid = new OncoGrid(params);

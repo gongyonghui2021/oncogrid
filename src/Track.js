@@ -1,27 +1,8 @@
-/*
- * Copyright 2016(c) The Ontario Institute for Cancer Research. All rights reserved.
- *
- * This program and the accompanying materials are made available under the terms of the GNU Public
- * License v3.0. You should have received a copy of the GNU General Public License along with this
- * program. If not, see <http://www.gnu.org/licenses/>.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
- * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 'use strict';
 
-var OncoTrackGroup = require('./TrackGroup');
-
-var OncoTrack;
-
-OncoTrack = function (params, s, rotated, tracks, opacityFunc, fillFunc, updateCallback, offset, resizeCallback, isFullscreen) {
-  var _self = this;
+import OncoTrackGroup from './TrackGroup'
+let OncoTrack = function (params, s, rotated, tracks, opacityFunc, fillFunc, updateCallback, offset, resizeCallback, isFullscreen) {
+  let _self = this;
   _self.padding = params.trackPadding || 20;
   _self.offset = offset;
   _self.params = params;
@@ -63,16 +44,16 @@ OncoTrack = function (params, s, rotated, tracks, opacityFunc, fillFunc, updateC
  * Parses track groups out of input.
  */
 OncoTrack.prototype.parseGroups = function () {
-  var _self = this;
+  let _self = this;
 
   _self.groupMap = {}; // Nice for lookups and existence checks
   _self.groups = []; // Nice for direct iteration
   _self.availableTracks.forEach(function (track) {
-    var group = track.group || 'Tracks';
+    let group = track.group || 'Tracks';
     if (_self.groupMap.hasOwnProperty(group)) {
       _self.groupMap[group].addTrack(track);
     } else {
-      var trackGroup = new OncoTrackGroup({
+      let trackGroup = new OncoTrackGroup({
         cellHeight: _self.cellHeight,
         width: _self.width,
         clickFunc: _self.clickFunc,
@@ -97,14 +78,14 @@ OncoTrack.prototype.parseGroups = function () {
  * intervals.
  */
 OncoTrack.prototype.init = function () {
-  var _self = this;
+  let _self = this;
   _self.container = _self.svg.append('g');
 
-  var labelHeight = 0;
+  let labelHeight = 0;
   _self.height = 0;
-  for (var k = 0; k < _self.groups.length; k++) {
-    var g = _self.groups[k];
-    var trackContainer = _self.container.append('g')
+  for (let  k = 0; k < _self.groups.length; k++) {
+    let g = _self.groups[k];
+    let trackContainer = _self.container.append('g')
         .attr('transform', 'translate(0,' + _self.height + ')');
     g.init(trackContainer);
     _self.height += Number(g.totalHeight) + _self.padding;
@@ -116,7 +97,7 @@ OncoTrack.prototype.init = function () {
     }
   }
 
-  var translateDown = _self.rotated ? -(_self.offset + _self.height) : (_self.padding + _self.offset);
+  let translateDown = _self.rotated ? -(_self.offset + _self.height) : (_self.padding + _self.offset);
 
   _self.container
       .attr('width', _self.width)
@@ -131,25 +112,25 @@ OncoTrack.prototype.init = function () {
 
 /** Calls render on all track groups */
 OncoTrack.prototype.render = function (x, div) {
-  var _self = this;
+  let _self = this;
 
-  for (var i = 0; i < _self.groups.length; i++) {
-    var g = _self.groups[i];
+  for (let  i = 0; i < _self.groups.length; i++) {
+    let g = _self.groups[i];
     g.render(x, div);
   }
 };
 
 /** Resizes all the track groups */
 OncoTrack.prototype.resize = function (width, height, x, offset) {
-  var _self = this;
+  let _self = this;
 
   _self.offset = offset || _self.offset;
   _self.width = _self.rotated ? height : width;
   _self.height = 0;
-  var labelHeight = 0;
-  
-  for (var k = 0; k < _self.groups.length; k++) {
-    var g = _self.groups[k];
+  let labelHeight = 0;
+
+  for (let  k = 0; k < _self.groups.length; k++) {
+    let g = _self.groups[k];
     g.container.attr('transform', 'translate(0,' + _self.height + ')');
     g.resize(_self.width, x);
     _self.height += Number(g.totalHeight) + _self.padding;
@@ -161,7 +142,7 @@ OncoTrack.prototype.resize = function (width, height, x, offset) {
     }
   }
 
-  var translateDown = _self.rotated ? -(_self.offset + _self.height) : (_self.padding + _self.offset);
+  let translateDown = _self.rotated ? -(_self.offset + _self.height) : (_self.padding + _self.offset);
 
   _self.container
       .attr('width', _self.width)
@@ -177,24 +158,24 @@ OncoTrack.prototype.resize = function (width, height, x, offset) {
  * Updates the rendering of the tracks.
  */
 OncoTrack.prototype.update = function (domain, x) {
-  var _self = this;
+  let _self = this;
 
   _self.domain = domain;
   _self.x = x;
 
-  for (var i = 0; i < _self.groups.length; i++) {
-    var g = _self.groups[i];
+  for (let  i = 0; i < _self.groups.length; i++) {
+    let g = _self.groups[i];
     g.update(domain, x);
   }
 };
 
 OncoTrack.prototype.toggleGridLines = function () {
-  var _self = this;
+  let _self = this;
 
-  for (var i = 0; i < _self.groups.length; i++) {
-    var g = _self.groups[i];
+  for (let  i = 0; i < _self.groups.length; i++) {
+    let g = _self.groups[i];
     g.toggleGridLines();
   }
 };
 
-module.exports = OncoTrack;
+export default OncoTrack;

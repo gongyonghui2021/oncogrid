@@ -1,33 +1,29 @@
 {
   "name": "oncogrid",
-  "description": "OncoGrid Visualization for ICGC",
-  "version": "1.2.2",
+  "description": "OncoGrid Visualization for CBCA",
+  "version": "3.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:oncojs/oncogrid.git"
+    "url": "git@github.com:gongyonghui2021/oncogrid.git"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "gulp": "^3.9.1",
-    "gulp-browserify": "^0.5.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-jshint": "^2.0.0",
-    "gulp-minify": "0.0.10",
-    "gulp-rename": "^1.2.2",
+    "gulp": "^4.0.2",
     "jshint": "^2.9.2",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "mustache": "^4.2.0",
+    "webpack-stream": "^6.1.2"
   },
   "engines": {
     "node": ">=0.8.0"
   },
-  "main": "src/OncoGrid.js",
+  "main": "src/index.js",
   "dependencies": {
-    "d3": "3.5.17",
+    "d3": "6.7.0",
     "eventemitter3": "^2.0.3",
     "lodash.clonedeep": "^4.5.0",
     "lodash.uniq": "^4.5.0",
-    "lodash.values": "^4.3.0",
-    "mustache": "^2.2.1"
+    "lodash.values": "^4.3.0"
   }
 }
