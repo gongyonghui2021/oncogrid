@@ -84,8 +84,7 @@ OncoHistogram.prototype.render = function (x, div) {
 
     _self.histogram.selectAll('rect')
         .data(_self.domain)
-        .enter()
-        .append('rect')
+        .join('rect')
         .on('mouseover', function (e,d) {
             let coordinates = d3.pointer(e,_self.wrapper.node());
 

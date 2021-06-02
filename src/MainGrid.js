@@ -2,8 +2,8 @@
 import "d3"
 import Mustache from 'mustache'
 
-import OncoHistogram  from './Histogram'
-import OncoTrack  from './Track'
+import OncoHistogram from './Histogram'
+import OncoTrack from './Track'
 
 let MainGrid = function (params, lookupTable, updateCallback, resizeCallback, emit) {
     let _self = this;
@@ -50,21 +50,21 @@ MainGrid.prototype.loadParams = function (params) {
     _self.wrapper = d3.select(params.wrapper || 'body');
 
     _self.colorMap = params.colorMap || {
-            'missense_variant': '#ff9b6c',
-            'frameshift_variant': '#57dba4',
-            'stop_gained': '#af57db',
-            'start_lost': '#ff2323',
-            'stop_lost': '#d3ec00',
-            'initiator_codon_variant': '#5abaff'
-        };
+        'missense_variant': '#ff9b6c',
+        'frameshift_variant': '#57dba4',
+        'stop_gained': '#af57db',
+        'start_lost': '#ff2323',
+        'stop_lost': '#d3ec00',
+        'initiator_codon_variant': '#5abaff'
+    };
 
     _self.numDonors = _self.donors.length;
     _self.numGenes = _self.genes.length;
 
     _self.fullscreen = false;
 
-    _self.isFullscreen = function(){
-      return _self.fullscreen;
+    _self.isFullscreen = function () {
+        return _self.fullscreen;
     };
 
     _self.width = params.width || 500;
@@ -76,8 +76,8 @@ MainGrid.prototype.loadParams = function (params) {
     _self.cellWidth = _self.width / _self.donors.length;
     _self.cellHeight = _self.height / _self.genes.length;
 
-    if (_self.cellHeight <  _self.minCellHeight) {
-        _self.cellHeight =  _self.minCellHeight;
+    if (_self.cellHeight < _self.minCellHeight) {
+        _self.cellHeight = _self.minCellHeight;
         params.height = _self.numGenes * _self.minCellHeight;
         _self.height = params.height;
     }
@@ -92,11 +92,11 @@ MainGrid.prototype.loadParams = function (params) {
     let templates = params.templates || {};
     _self.templates = {
         mainGrid: templates.mainGrid || '{{#observation}}' +
-                '{{observation.id}}<br>{{observation.geneSymbol}}<br>' +
-                '{{observation.donorId}}<br>{{observation.consequence}}<br>{{/observation}}',
+            '{{observation.id}}<br>{{observation.geneSymbol}}<br>' +
+            '{{observation.donorId}}<br>{{observation.consequence}}<br>{{/observation}}',
 
         mainGridCrosshair: templates.mainGridCrosshair || '{{#donor}}Donor: {{donor.id}}<br>{{/donor}}' +
-                '{{#gene}}Gene: {{gene.symbol}}<br>{{/gene}}' + '{{#obs}}Mutations: {{obs}}<br>{{/obs}}'
+            '{{#gene}}Gene: {{gene.symbol}}<br>{{/gene}}' + '{{#obs}}Mutations: {{obs}}<br>{{/obs}}'
     };
 };
 
@@ -108,7 +108,8 @@ MainGrid.prototype.init = function () {
 
     _self.div = _self.wrapper.append('div')
         .attr('class', _self.prefix + 'tooltip-oncogrid')
-        .style('opacity', 0);
+        .style('opacity', 0)
+        .style('z-index', 9999);
 
     _self.canvas = _self.wrapper.append('canvas') // forces size of container to prevent default height in IE
         .attr('class', _self.prefix + 'canvas');
@@ -144,7 +145,7 @@ MainGrid.prototype.render = function () {
     _self.container.selectAll('.' + _self.prefix + 'maingrid-svg')
         .data(_self.observations).enter()
         .append('rect')
-        .on('mouseover', function (e,d) {
+        .on('mouseover', function (e, d) {
             let coord = d3.pointer(e);
             let xIndex = _self.rangeToDomain(_self.x, coord[0]);
             let yIndex = _self.rangeToDomain(_self.y, coord[1]);
@@ -155,10 +156,8 @@ MainGrid.prototype.render = function () {
                 donor: _self.donors[xIndex],
                 gene: _self.genes[yIndex]
             });
-
-            if(html) {
-                let tooltipCoord = d3.pointer(e,_self.wrapper.node());
-
+            if (html) {
+                let tooltipCoord = d3.pointer(e, _self.wrapper.node());
                 _self.div.transition()
                     .duration(200)
                     .style('opacity', 0.9);
@@ -173,9 +172,9 @@ MainGrid.prototype.render = function () {
                 .duration(500)
                 .style('opacity', 0);
         })
-        .on('click', function (e,d) {
+        .on('click', function (e, d) {
             if (typeof _self.gridClick !== 'undefined') {
-                _self.gridClick(e,d);
+                _self.gridClick(e, d);
             }
         })
         .attr('class', function (d) {
@@ -239,7 +238,7 @@ MainGrid.prototype.update = function () {
         _self.cellHeight = _self.height / _self.numGenes;
         _self.computeCoordinates();
     } else {
-        _self.row.selectAll('text').attr('style', function() {
+        _self.row.selectAll('text').attr('style', function () {
             if (_self.cellHeight < _self.minCellHeight) {
                 return 'display: none;';
             } else {
@@ -257,7 +256,9 @@ MainGrid.prototype.update = function () {
     _self.container.selectAll('.' + _self.prefix + 'sortable-rect')
         .transition()
         .attr('width', _self.cellWidth)
-        .attr('height', function(d) {return _self.getHeight(d);})
+        .attr('height', function (d) {
+            return _self.getHeight(d);
+        })
         .attr('y', function (d) {
             return _self.getY(d);
         })
@@ -333,7 +334,7 @@ MainGrid.prototype.computeCoordinates = function () {
         .attr('y', _self.cellHeight / 2)
         .attr('dy', '.32em')
         .attr('text-anchor', 'end')
-        .attr('style', function() {
+        .attr('style', function () {
             if (_self.cellHeight < _self.minCellHeight) {
                 return 'display: none;';
             } else {
@@ -347,7 +348,7 @@ MainGrid.prototype.computeCoordinates = function () {
     _self.defineRowDragBehaviour();
 };
 
-MainGrid.prototype.resize = function(width, height) {
+MainGrid.prototype.resize = function (width, height) {
     let _self = this;
 
     _self.width = width;
@@ -356,8 +357,8 @@ MainGrid.prototype.resize = function(width, height) {
     _self.cellWidth = _self.width / _self.donors.length;
     _self.cellHeight = _self.height / _self.genes.length;
 
-    if (_self.cellHeight <  _self.minCellHeight) {
-        _self.cellHeight =  _self.minCellHeight;
+    if (_self.cellHeight < _self.minCellHeight) {
+        _self.cellHeight = _self.minCellHeight;
         _self.height = _self.genes.length * _self.minCellHeight;
     }
 
@@ -382,7 +383,7 @@ MainGrid.prototype.resize = function(width, height) {
 
 };
 
-MainGrid.prototype.resizeSvg = function() {
+MainGrid.prototype.resizeSvg = function () {
     let _self = this;
     let width = _self.margin.left + _self.leftTextWidth + _self.width + _self.histogramHeight + _self.geneTrack.height + _self.margin.right;
     let height = _self.margin.top + _self.histogramHeight + _self.height + _self.donorTrack.height + _self.margin.bottom;
@@ -391,7 +392,7 @@ MainGrid.prototype.resizeSvg = function() {
         .attr('width', width)
         .attr('height', height);
 
-    if(_self.scaleToFit) {
+    if (_self.scaleToFit) {
         _self.canvas.style('width', '100%');
         _self.svg.attr('viewBox', '0 0 ' + width + ' ' + height);
     } else {
@@ -403,13 +404,13 @@ MainGrid.prototype.resizeSvg = function() {
         .attr('transform', 'translate(' +
             (_self.margin.left + _self.leftTextWidth) + ',' +
             (_self.margin.top + _self.histogramHeight) +
-        ')');
+            ')');
 };
 
 MainGrid.prototype.defineCrosshairBehaviour = function () {
     let _self = this;
 
-    let moveCrossHair = function(eventType, event) {
+    let moveCrossHair = function (eventType, event) {
         if (_self.crosshair) {
             let coord = d3.pointer(event);
 
@@ -435,7 +436,7 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
                 obs: obsArray
             });
 
-            if(html) {
+            if (html) {
                 let tooltipCoord = d3.pointer(event, _self.wrapper.node());
 
                 _self.div.transition()
@@ -464,22 +465,30 @@ MainGrid.prototype.defineCrosshairBehaviour = function () {
         .attr('style', 'pointer-events: none');
 
     _self.container
-        .on('mousedown', function() {_self.startSelection(this);})
-        .on('mouseover', function(e) { moveCrossHair('mouseover', e); })
-        .on('mousemove', function(e) { moveCrossHair('mousemove', e); })
+        .on('mousedown', function () {
+            _self.startSelection(this);
+        })
+        .on('mouseover', function (e) {
+            moveCrossHair('mouseover', e);
+        })
+        .on('mousemove', function (e) {
+            moveCrossHair('mousemove', e);
+        })
         .on('mouseout', function () {
             if (_self.crosshair) {
                 _self.verticalCross.attr('opacity', 0);
                 _self.horizontalCross.attr('opacity', 0);
             }
         })
-        .on('mouseup', function(e) {_self.finishSelection(e);});
+        .on('mouseup', function (e) {
+            _self.finishSelection(e);
+        });
 };
 
 /**
  * Event behavior when pressing down on the mouse to make a selection
  */
-MainGrid.prototype.startSelection = function(e) {
+MainGrid.prototype.startSelection = function (e) {
     let _self = this;
 
     if (_self.crosshair && typeof _self.selectionRegion === 'undefined') {
@@ -501,7 +510,7 @@ MainGrid.prototype.startSelection = function(e) {
 /**
  * Event behavior as you drag selected region around
  */
-MainGrid.prototype.changeSelection = function(coord) {
+MainGrid.prototype.changeSelection = function (coord) {
     let _self = this;
 
     let rect = {
@@ -512,18 +521,18 @@ MainGrid.prototype.changeSelection = function(coord) {
     };
 
     let move = {
-        x : coord[0] - Number(_self.selectionRegion.attr('x')),
-        y : coord[1] - Number(_self.selectionRegion.attr('y'))
+        x: coord[0] - Number(_self.selectionRegion.attr('x')),
+        y: coord[1] - Number(_self.selectionRegion.attr('y'))
     };
 
-    if( move.x < 1 || (move.x*2<rect.width)) {
+    if (move.x < 1 || (move.x * 2 < rect.width)) {
         rect.x = coord[0];
         rect.width -= move.x;
     } else {
         rect.width = move.x;
     }
 
-    if( move.y < 1 || (move.y*2<rect.height)) {
+    if (move.y < 1 || (move.y * 2 < rect.height)) {
         rect.y = coord[1];
         rect.height -= move.y;
     } else {
@@ -536,7 +545,7 @@ MainGrid.prototype.changeSelection = function(coord) {
 /**
  * Event behavior when releasing mouse when finishing with a selection
  */
-MainGrid.prototype.finishSelection = function(event) {
+MainGrid.prototype.finishSelection = function (event) {
     let _self = this;
 
     if (_self.crosshair && typeof _self.selectionRegion !== 'undefined') {
@@ -574,7 +583,7 @@ MainGrid.prototype.finishSelection = function(event) {
  * @param start - start index of the selection
  * @param stop - end index of the selection
  */
-MainGrid.prototype.sliceGenes = function(start, stop) {
+MainGrid.prototype.sliceGenes = function (start, stop) {
     let _self = this;
 
     for (let i = 0; i < _self.genes.length; i++) {
@@ -583,7 +592,9 @@ MainGrid.prototype.sliceGenes = function(start, stop) {
             d3.selectAll('.' + _self.prefix + gene.id + '-cell').remove();
             d3.selectAll('.' + _self.prefix + gene.id + '-bar').remove();
             _self.genes.splice(i, 1);
-            i--;start--;stop--;
+            i--;
+            start--;
+            stop--;
         }
     }
 };
@@ -593,7 +604,7 @@ MainGrid.prototype.sliceGenes = function(start, stop) {
  * @param start - start index of the selection
  * @param stop - end index of the selection
  */
-MainGrid.prototype.sliceDonors = function(start, stop) {
+MainGrid.prototype.sliceDonors = function (start, stop) {
     let _self = this;
 
     for (let i = 0; i < _self.donors.length; i++) {
@@ -602,7 +613,9 @@ MainGrid.prototype.sliceDonors = function(start, stop) {
             d3.selectAll('.' + _self.prefix + donor.id + '-cell').remove();
             d3.selectAll('.' + _self.prefix + donor.id + '-bar').remove();
             _self.donors.splice(i, 1);
-            i--;start--;stop--;
+            i--;
+            start--;
+            stop--;
         }
     }
 };
@@ -618,17 +631,15 @@ MainGrid.prototype.defineRowDragBehaviour = function () {
         e.sourceEvent.stopPropagation(); // silence other listeners
     });
     drag.on('drag', function (e) {
-        let trans = e.dy;
-        let selection = d3.select(e.target);
-
-        selection.attr('transform', function () {
-            let transform = d3.transform(d3.select(e.target).attr('transform'));
-            return 'translate( 0, ' + (parseInt(transform.translate[1]) + trans) + ')';
-        });
+        let selection = d3.select(this)
+        let result = selection.attr("transform").match(/.*translate\(\s*\d+,\s*([\.0-9]+)\).*/)
+        if (result && result[1]) {
+            d3.select(this).attr("transform", 'translate( 0, ' + (Number(result[1]) + Number(e.dy)) + ')')
+        }
     });
 
-    drag.on('end', function (e,d) {
-        let coord = d3.pointer(e,_self.container.node());
+    drag.on('end', function (e, d) {
+        let coord = d3.pointer(e, _self.container.node());
         let dragged = _self.genes.indexOf(d);
         let yIndex = _self.rangeToDomain(_self.y, coord[1]);
 
@@ -808,16 +819,16 @@ MainGrid.prototype.removeGene = function (i) {
 };
 
 
-MainGrid.prototype.rangeToDomain = function(scale, value) {
-    return scale.domain()[d3.bisect(scale.range(), value) - 1];
+MainGrid.prototype.rangeToDomain = function (scale, value) {
+    return scale.domain()[d3.bisect(d3.range(scale.range()[0],scale.range()[1],scale.step()), value) - 1];
 };
 
 
-MainGrid.prototype.nullableObsLookup = function(donor, gene) {
+MainGrid.prototype.nullableObsLookup = function (donor, gene) {
     let _self = this;
 
-    if(!donor || typeof donor !== 'object') return null;
-    if(!gene || typeof gene !== 'object') return null;
+    if (!donor || typeof donor !== 'object') return null;
+    if (!gene || typeof gene !== 'object') return null;
 
     if (_self.lookupTable.hasOwnProperty(donor.id) && _self.lookupTable[donor.id].hasOwnProperty(gene.id)) {
         return _self.lookupTable[donor.id][gene.id].join(', '); // Table stores arrays and we want to return a string;

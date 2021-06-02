@@ -248,14 +248,10 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
         .domain(d3.range(_self.length))
         .range([0, _self.height]);
 
-    // append columns
-    if (typeof _self.column !== 'undefined') {
-        _self.column.remove();
-    }
 
     _self.column = _self.container.selectAll('.' + _self.prefix + 'column')
         .data(_self.domain)
-        .enter().append('g')
+        .join('g')
         .attr('class', _self.prefix + 'column')
         .attr('donor', function (d) { return d.id; })
         .attr('transform', function (d, i) { return 'translate(' + _self.x(i) + ')rotate(-90)'; });
@@ -266,13 +262,10 @@ OncoTrackGroup.prototype.computeCoordinates = function () {
     }
 
     // append rows
-    if (typeof _self.row !== 'undefined') {
-        _self.row.remove();
-    }
 
     _self.row = _self.container.selectAll('.' + _self.prefix + 'row')
         .data(_self.tracks)
-        .enter().append('g')
+        .join('g')
         .attr('class', _self.prefix + 'row')
         .attr('transform', function (d, i) { return 'translate(0,' + _self.y(i) + ')'; });
 
@@ -370,10 +363,8 @@ OncoTrackGroup.prototype.renderData = function(x, div) {
     let selection = _self.container.selectAll('.' + _self.prefix + 'track-data')
         .data(_self.trackData);
 
-    selection.enter()
-        .append('rect')
 
-    selection
+    selection.join("rect")
         .attr('x', function (d) { return _self.getX(d); })
         .attr('y', function (d) { return _self.getY(d); })
         .attr('width', _self.cellWidth)
@@ -403,8 +394,6 @@ OncoTrackGroup.prototype.renderData = function(x, div) {
                 .duration(500)
                 .style('opacity', 0);
         });
-
-    selection.exit().remove();
 };
 
 export default OncoTrackGroup;
