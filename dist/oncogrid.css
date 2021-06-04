@@ -1,0 +1,124 @@
+
+
+#grid-div {
+    cursor: pointer;
+}
+
+#grid-div .crosshair-mode {
+    cursor: crosshair;
+}
+
+#grid-div textarea {
+    padding: 2px;
+    width: 714px;
+    height: 360px;
+}
+
+#grid-div .og-gene-label {
+    cursor: move;
+}
+
+#grid-div .og-remove-gene:before {
+    content: 'Remove';
+}
+
+#grid-div .og-remove-gene {
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-family: sans-serif;
+    color: red;
+}
+
+#grid-div .og-label-text-font {
+    font-size: 0.5rem;
+}
+
+#grid-div .og-track-group-label {
+    font-size: 0.8em;
+}
+
+#grid-div .og-legend-group-label {
+    font-size: 0.6em;
+    fill: blue;
+}
+
+#grid-div .og-highlight {
+    stroke: green;
+    stroke-width: 1;
+}
+
+#grid-div div.og-tooltip-oncogrid {
+    font-weight: 300;
+    position: absolute;
+    z-index: 100001;
+    display: block;
+    visibility: visible;
+    font-size: .9rem;
+    pointer-events: none;
+    line-height: 1.6rem;
+    border: 1px solid #b3b3b3;
+    background-color: #fff;
+    border-radius: 3px;
+    -webkit-filter: drop-shadow(0 1px 3px hsla(0,0%,71%,.43));
+    box-shadow: 0 1px 3px hsl(0deg 0% 71% / 43%);
+    -moz-box-shadow: 0 1px 3px hsla(0,0%,71%,.43);
+    filter: drop-shadow(0 1px 3px rgba(180,180,180,.43));
+    padding: 5px;
+}
+
+
+#oncogrid-div .og-label-text-font, #oncogrid-div .og-track-label {
+    font-size: .7rem;
+}
+
+
+#grid-div .og-sortable-rect:hover {
+    stroke: #000;
+    stroke-width: 1;
+}
+
+#grid-div line {
+    stroke: grey;
+    stroke-opacity: 0.5;
+    stroke-width: 0.3;
+}
+
+#grid-div .background {
+    fill: #fff;
+    stroke: grey;
+    stroke-width: 0.5;
+    stroke-opacity: .3;
+}
+
+#grid-div .og-histogram-axis {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 0.5;
+}
+
+#grid-div .background {
+    fill: #fff;
+    stroke: grey;
+    stroke-width: 0.5;
+    stroke-opacity: .3;
+}
+
+#grid-div line.og-vertical-cross {
+    stroke: black;
+    stroke-opacity: 0.5;
+    stroke-width: 0.4;
+}
+
+#grid-div line.og-horizontal-cross {
+    stroke: black;
+    stroke-opacity: 0.5;
+    stroke-width: 0.5;
+}
+
+#grid-div .og-crosshair-mode {
+    cursor: crosshair;
+}
+
+#grid-div .og-pointer-mode {
+    cursor: pointer;
+}
